@@ -28,7 +28,9 @@ export default function AddItemModal({ onSave, onClose }) {
           <select className="modal-select" value={cat} onChange={e => setCat(e.target.value)}>
             <option value="fridge">Fridge</option>
             <option value="freezer">Freezer</option>
-            <option value="pantry-shelf">Pantry shelf</option>
+            <option value="cupboard">Cupboard</option>
+            <option value="toiletries">Toiletries</option>
+            <option value="household">Household</option>
           </select>
         </div>
 
