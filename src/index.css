@@ -1,0 +1,269 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #D6EFE3;
+  color: #2D2D2D;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ── App shell ── */
+.app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #D6EFE3;
+  position: relative;
+}
+
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(180,220,200,0.4);
+  display: flex;
+  z-index: 100;
+}
+.nav-btn {
+  flex: 1;
+  padding: 10px 4px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #8ABAA8;
+  transition: color 0.15s;
+}
+.nav-btn.active { color: #C4608A; }
+.nav-btn i { font-size: 20px; }
+
+/* ── Cards / surfaces ── */
+.card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  border: 1px solid rgba(180,220,200,0.3);
+  padding: 16px;
+}
+
+/* ── Screen header ── */
+.screen-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.screen-title { font-size: 22px; font-weight: 800; color: #1A3D2E; }
+.screen-subtitle { font-size: 13px; color: #6A9A84; font-weight: 600; margin-top: 2px; }
+
+/* ── Section labels ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6A9A84;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  background: #C4608A;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-ghost {
+  background: #EFF8F3;
+  color: #8ABAA8;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.add-btn {
+  background: rgba(196,96,138,0.1);
+  color: #C4608A;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 11px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.add-btn:hover { background: rgba(196,96,138,0.2); }
+
+/* ── Stock badges ── */
+.badge-out { background: #FCE8E8; color: #D05050; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-block; margin-top: 2px; }
+.badge-low { background: #FDF4E0; color: #C09030; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-block; margin-top: 2px; }
+
+/* ── Suggestion rows ── */
+.suggestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(180,220,200,0.25);
+}
+.suggestion-row:last-child { border-bottom: none; }
+.suggestion-name { font-size: 13px; font-weight: 700; color: #1A3D2E; }
+.suggestion-sub { font-size: 11px; color: #8ABAA8; font-weight: 600; margin-top: 1px; }
+
+/* ── Stock divider ── */
+.stock-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 8px;
+}
+.stock-divider-line { flex: 1; height: 1px; background: rgba(180,220,200,0.35); }
+.label-out { background: #FCE8E8; color: #D05050; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 8px; border-radius: 6px; }
+.label-low { background: #FDF4E0; color: #C09030; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 8px; border-radius: 6px; }
+
+/* ── Stock toggle ── */
+.stock-toggle {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid rgba(180,220,200,0.5);
+}
+.stock-btn {
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  background: #F0F8F4;
+  color: #A0C0A8;
+  transition: all 0.1s;
+}
+.stock-btn.active-full { background: #7DC4A0; color: #fff; }
+.stock-btn.active-low  { background: #F5C97A; color: #fff; }
+.stock-btn.active-out  { background: #E87E7E; color: #fff; }
+
+/* ── Staple badge ── */
+.staple-badge {
+  font-size: 9px; font-weight: 800;
+  background: rgba(196,96,138,0.1); color: #C4608A;
+  padding: 2px 6px; border-radius: 5px;
+  margin-left: 6px; text-transform: uppercase;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,60,40,0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 200;
+}
+.modal {
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  width: 100%; max-width: 420px;
+}
+.modal-title { font-size: 16px; font-weight: 800; color: #1A3D2E; margin-bottom: 4px; }
+.modal-sub   { font-size: 12px; color: #6A9A84; font-weight: 600; margin-bottom: 16px; }
+.modal-label {
+  font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: #6A9A84; margin-bottom: 6px; display: block;
+}
+.modal-input, .modal-select {
+  width: 100%; padding: 10px 12px;
+  border-radius: 12px; border: 1.5px solid #D8EEE4;
+  font-family: 'Nunito', sans-serif; font-size: 14px;
+  font-weight: 600; color: #1A3D2E; background: #fff; outline: none;
+}
+.modal-input:focus { border-color: #C4608A; }
+.modal-field { margin-bottom: 12px; }
+.modal-toggle-row { display: flex; gap: 8px; }
+.modal-toggle {
+  flex: 1; padding: 8px; border-radius: 10px;
+  border: 1.5px solid #D8EEE4; background: #fff;
+  font-family: 'Nunito', sans-serif; font-size: 12px;
+  font-weight: 700; color: #8ABAA8; cursor: pointer; transition: all 0.15s;
+}
+.modal-toggle.active-pink  { border-color: #C4608A; background: rgba(196,96,138,0.08); color: #C4608A; }
+.modal-toggle.active-blue  { border-color: #4A86B8; background: rgba(74,134,184,0.08);  color: #4A86B8; }
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* ── Scan screen ── */
+.scan-card-title { font-size: 14px; font-weight: 800; color: #1A3D2E; margin-bottom: 6px; }
+.scan-card-sub   { font-size: 12px; color: #6A9A84; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+.scan-action-btn {
+  width: 100%; padding: 14px; border-radius: 14px; border: none;
+  font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 10px;
+}
+.scan-action-btn.blue { background: linear-gradient(135deg,#4A86B8,#6AA8D8); color: #fff; }
+.scan-action-btn.pink { background: linear-gradient(135deg,#C4608A,#D480A8); color: #fff; }
+.voice-area {
+  background: rgba(196,96,138,0.07);
+  border-radius: 16px; padding: 16px; margin-bottom: 12px;
+  border: 1px solid rgba(196,96,138,0.15);
+}
+.voice-label { font-size: 11px; font-weight: 800; color: #C4608A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.voice-textarea {
+  width: 100%; background: transparent; border: none;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600;
+  color: #1A3D2E; resize: none; outline: none; min-height: 80px; line-height: 1.6;
+}
+
+/* ── Confirm box ── */
+.confirm-box { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(180,220,200,0.3); }
+.confirm-title { font-size: 13px; font-weight: 800; color: #1A3D2E; margin-bottom: 10px; }
+.confirm-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(180,220,200,0.2); }
+.confirm-item:last-child { border-bottom: none; }
+.confirm-name { font-size: 13px; font-weight: 700; color: #1A3D2E; }
+.change-full { font-size: 11px; font-weight: 700; color: #50A870; }
+.change-low  { font-size: 11px; font-weight: 700; color: #E0A030; }
+.change-out  { font-size: 11px; font-weight: 700; color: #D05050; }
+.confirm-actions { display: flex; gap: 8px; margin-top: 12px; }
+.confirm-btn-apply  { flex: 1; padding: 10px; border-radius: 12px; border: none; background: #7DC4A0; color: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; }
+.confirm-btn-cancel { flex: 1; padding: 10px; border-radius: 12px; border: none; background: #EFF8F3; color: #8ABAA8; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; }
+
+/* ── Empty / info states ── */
+.empty-state { text-align: center; padding: 20px 16px; color: #6A9A84; font-size: 13px; font-weight: 700; }
+.loading-state { text-align: center; padding: 20px; color: #6A9A84; font-weight: 700; font-size: 13px; }
