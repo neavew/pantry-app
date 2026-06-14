@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { fetchPantry, upsertItem, insertItem, subscribeToPantry } from './lib/supabase.js'
+import { fetchPantry, upsertItem, insertItem, deleteItem, subscribeToPantry } from './lib/supabase.js'
 import Dashboard from './screens/Dashboard.jsx'
 import ShoppingList from './screens/ShoppingList.jsx'
 import Pantry from './screens/Pantry.jsx'
