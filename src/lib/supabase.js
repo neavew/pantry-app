@@ -11,6 +11,7 @@ export async function fetchPantry() {
   const { data, error } = await supabase
     .from('pantry_items')
     .select('*')
+    .order('sort_order')
     .order('name')
   if (error) throw error
   return data

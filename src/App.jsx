@@ -79,6 +79,19 @@ export default function App() {
     await updateItem(id, { added_to_list: true })
   }, [updateItem])
 
+  // Reorder items within a category
+  const handleReorder = useCallback(async (cat, orderedIds) => {
+    setPantry(prev => prev.map(item => {
+      const idx = orderedIds.indexOf(item.id)
+      return idx !== -1 ? { ...item, sort_order: idx } : item
+    }))
+    const items = pantry.filter(i => i.cat === cat)
+    for (let idx = 0; idx < orderedIds.length; idx++) {
+      const item = items.find(i => i.id === orderedIds[idx])
+      if (item) await upsertItem({ ...item, sort_order: idx })
+    }
+  }, [pantry])
+
   // Edit item
   const handleEditItem = useCallback(async (updated) => {
     setPantry(prev => prev.map(i => i.id === updated.id ? { ...i, ...updated } : i))
@@ -148,7 +161,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">
