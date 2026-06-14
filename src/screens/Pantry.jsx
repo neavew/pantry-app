@@ -7,8 +7,38 @@ const CAT_META = {
   'pantry-shelf': { label: 'Pantry shelf', initials: 'PA', bg: '#C4608A' },
 }
 
+function getInitials(label) {
+  const words = label.trim().split(/\s+/)
+  return words.length === 1
+    ? label.slice(0, 2).toUpperCase()
+    : (words[0][0] + words[1][0]).toUpperCase()
+}
+
+function loadLabels() {
+  try { return JSON.parse(localStorage.getItem('pantry-cat-labels') || '{}') } catch { return {} }
+}
+
 export default function Pantry({ pantry, onSetStock, onOpenAdd }) {
   const [openCats, setOpenCats] = useState({})
+  const [catLabels, setCatLabels] = useState(loadLabels)
+  const [editingCat, setEditingCat] = useState(null)
+  const [editValue, setEditValue] = useState('')
+
+  const startEdit = (e, cat, currentLabel) => {
+    e.stopPropagation()
+    setEditingCat(cat)
+    setEditValue(currentLabel)
+  }
+
+  const commitEdit = cat => {
+    const trimmed = editValue.trim()
+    if (trimmed) {
+      const next = { ...catLabels, [cat]: trimmed }
+      setCatLabels(next)
+      localStorage.setItem('pantry-cat-labels', JSON.stringify(next))
+    }
+    setEditingCat(null)
+  }
 
   const toggleCat = cat => setOpenCats(prev => ({ ...prev, [cat]: !prev[cat] }))
 
@@ -27,13 +57,30 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd }) {
           const items = pantry.filter(i => i.cat === cat)
           const meta = CAT_META[cat]
           const isOpen = openCats[cat]
+          const label = catLabels[cat] || meta.label
+          const initials = catLabels[cat] ? getInitials(catLabels[cat]) : meta.initials
           return (
             <div key={cat} style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(6px)', borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(180,220,200,0.3)' }}>
               <div onClick={() => toggleCat(cat)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <div style={{ width: 32, height: 32, borderRadius: 10, background: meta.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
-                  {meta.initials}
+                  {initials}
                 </div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#1A3D2E', flex: 1 }}>{meta.label}</div>
+                {editingCat === cat ? (
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    onBlur={() => commitEdit(cat)}
+                    onKeyDown={e => { if (e.key === 'Enter') commitEdit(cat); if (e.key === 'Escape') setEditingCat(null) }}
+                    onClick={e => e.stopPropagation()}
+                    style={{ fontSize: 15, fontWeight: 800, color: '#1A3D2E', flex: 1, border: 'none', borderBottom: '2px solid #7DC4A0', background: 'transparent', outline: 'none', padding: '2px 0' }}
+                  />
+                ) : (
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#1A3D2E', flex: 1 }}
+                    onDoubleClick={e => startEdit(e, cat, label)}
+                    title="Double-tap to rename"
+                  >{label}</div>
+                )}
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#8ABAA8' }}>{items.length} items</div>
                 <i className={`ti ti-chevron-down`} aria-hidden="true" style={{ fontSize: 16, color: '#8ABAA8', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none' }} />
               </div>
