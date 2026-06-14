@@ -46,9 +46,13 @@ export async function deleteItem(id) {
 
 // ── Realtime subscription ─────────────────────────────────────
 
-export function subscribeToPantry(callback) {
+export function subscribeToPantry(onRefresh, onDelete) {
   return supabase
     .channel('pantry_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pantry_items' }, callback)
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'pantry_items' }, payload => {
+      onDelete(payload.old.id)
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pantry_items' }, onRefresh)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pantry_items' }, onRefresh)
     .subscribe()
 }

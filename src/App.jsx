@@ -27,9 +27,10 @@ export default function App() {
       .catch(err => { console.error('Failed to load pantry:', err); setLoading(false) })
 
     // Realtime sync — when partner updates, this client refreshes
-    const channel = subscribeToPantry(() => {
-      fetchPantry().then(setPantry).catch(console.error)
-    })
+    const channel = subscribeToPantry(
+      () => fetchPantry().then(setPantry).catch(console.error),
+      id => setPantry(prev => prev.filter(i => i.id !== id))
+    )
     return () => channel.unsubscribe()
   }, [])
 
