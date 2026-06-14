@@ -9,7 +9,7 @@ import AddItemModal from './components/AddItemModal.jsx'
 const NAV = [
   { id: 'home',   icon: 'ti-home',          label: 'Dashboard' },
   { id: 'list',   icon: 'ti-shopping-cart',  label: 'Lists' },
-  { id: 'pantry', icon: 'ti-archive',        label: 'Pantry' },
+  { id: 'pantry', icon: 'ti-archive',        label: 'Inventory' },
   { id: 'scan',   icon: 'ti-camera',         label: 'Scan' },
 ]
 
@@ -19,6 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [activeStore, setActiveStore] = useState('costco')
   const [showAdd, setShowAdd] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
   const deletedIds = React.useRef(new Set())
 
   // Load pantry from Supabase
@@ -78,6 +79,17 @@ export default function App() {
     await updateItem(id, { added_to_list: true })
   }, [updateItem])
 
+  // Edit item
+  const handleEditItem = useCallback(async (updated) => {
+    setPantry(prev => prev.map(i => i.id === updated.id ? { ...i, ...updated } : i))
+    try {
+      await upsertItem(updated)
+    } catch (err) {
+      console.error('Failed to update item:', err)
+    }
+    setEditingItem(null)
+  }, [])
+
   // Delete item
   const handleDeleteItem = useCallback(async (id) => {
     deletedIds.current.add(id)
@@ -136,7 +148,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">
@@ -153,6 +165,7 @@ export default function App() {
       </nav>
 
       {showAdd && <AddItemModal onSave={handleAddItem} onClose={() => setShowAdd(false)} />}
+      {editingItem && <AddItemModal item={editingItem} onSave={handleEditItem} onClose={() => setEditingItem(null)} />}
     </div>
   )
 }

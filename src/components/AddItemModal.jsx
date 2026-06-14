@@ -1,22 +1,27 @@
 import React, { useState } from 'react'
 
-export default function AddItemModal({ onSave, onClose }) {
-  const [name, setName] = useState('')
-  const [cat, setCat] = useState('fridge')
-  const [store, setStore] = useState('costco')
-  const [staple, setStaple] = useState(true)
+export default function AddItemModal({ item, onSave, onClose }) {
+  const editing = !!item
+  const [name, setName] = useState(item?.name ?? '')
+  const [cat, setCat] = useState(item?.cat ?? 'fridge')
+  const [store, setStore] = useState(item?.store ?? 'costco')
+  const [staple, setStaple] = useState(item?.staple ?? true)
 
   const handleSave = () => {
     if (!name.trim()) return
-    onSave({ name: name.trim(), cat, store, staple, stock: 'full', added_to_list: false, last_bought: new Date().toISOString() })
+    if (editing) {
+      onSave({ ...item, name: name.trim(), cat, store, staple })
+    } else {
+      onSave({ name: name.trim(), cat, store, staple, stock: 'full', added_to_list: false, last_bought: new Date().toISOString() })
+    }
     onClose()
   }
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">Add pantry item</div>
-        <div className="modal-sub">Fill in the details — you can always edit later</div>
+        <div className="modal-title">{editing ? 'Edit item' : 'Add item'}</div>
+        <div className="modal-sub">{editing ? 'Update the details below' : 'Fill in the details — you can always edit later'}</div>
 
         <div className="modal-field">
           <label className="modal-label">Item name</label>

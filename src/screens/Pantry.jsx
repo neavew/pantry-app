@@ -9,7 +9,7 @@ const CAT_META = {
   household:   { label: 'Household',   icon: 'ti-home',          bg: '#B07DC4' },
 }
 
-export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem }) {
+export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem }) {
   const [openCats, setOpenCats] = useState({})
   const [confirmDelete, setConfirmDelete] = useState(null)
 
@@ -28,7 +28,7 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem }) 
     <div className="screen">
       <div className="screen-header">
         <div>
-          <div className="screen-title">Pantry</div>
+          <div className="screen-title">Inventory</div>
           <div className="screen-subtitle">Tap Full / Low / Out to update</div>
         </div>
         <button className="btn-primary" onClick={onOpenAdd}>+ Add</button>
@@ -75,6 +75,13 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem }) 
                             </button>
                           ))}
                         </div>
+                        <button
+                          onClick={() => onEditItem(item)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#8ABAA8', flexShrink: 0 }}
+                          title="Edit item"
+                        >
+                          <i className="ti ti-pencil" style={{ fontSize: 16 }} />
+                        </button>
                         <button
                           onClick={() => handleDelete(item.id)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#CCAAA8', flexShrink: 0 }}
