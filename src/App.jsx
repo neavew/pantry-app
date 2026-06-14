@@ -19,6 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [activeStore, setActiveStore] = useState('costco')
   const [showAdd, setShowAdd] = useState(false)
+  const deletedIds = React.useRef(new Set())
 
   // Load pantry from Supabase
   useEffect(() => {
@@ -28,8 +29,8 @@ export default function App() {
 
     // Realtime sync — when partner updates, this client refreshes
     const channel = subscribeToPantry(
-      () => fetchPantry().then(setPantry).catch(console.error),
-      id => setPantry(prev => prev.filter(i => i.id !== id))
+      () => fetchPantry().then(data => setPantry(data.filter(i => !deletedIds.current.has(i.id)))).catch(console.error),
+      id => { deletedIds.current.add(id); setPantry(prev => prev.filter(i => i.id !== id)) }
     )
     return () => channel.unsubscribe()
   }, [])
@@ -79,11 +80,15 @@ export default function App() {
 
   // Delete item
   const handleDeleteItem = useCallback(async (id) => {
+    deletedIds.current.add(id)
     setPantry(prev => prev.filter(i => i.id !== id))
     try {
       await deleteItem(id)
     } catch (err) {
       console.error('Failed to delete item:', err)
+      alert('Delete failed: ' + err.message)
+      deletedIds.current.delete(id)
+      fetchPantry().then(setPantry)
     }
   }, [])
 
