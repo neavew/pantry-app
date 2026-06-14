@@ -76,6 +76,16 @@ export default function App() {
     await updateItem(id, { added_to_list: true })
   }, [updateItem])
 
+  // Delete item
+  const handleDeleteItem = useCallback(async (id) => {
+    setPantry(prev => prev.filter(i => i.id !== id))
+    try {
+      await deleteItem(id)
+    } catch (err) {
+      console.error('Failed to delete item:', err)
+    }
+  }, [])
+
   // Add new item
   const handleAddItem = useCallback(async (newItem) => {
     try {
@@ -120,7 +130,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">

@@ -9,10 +9,20 @@ const CAT_META = {
   household:   { label: 'Household',   icon: 'ti-home',          bg: '#B07DC4' },
 }
 
-export default function Pantry({ pantry, onSetStock, onOpenAdd }) {
+export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem }) {
   const [openCats, setOpenCats] = useState({})
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const toggleCat = cat => setOpenCats(prev => ({ ...prev, [cat]: !prev[cat] }))
+
+  const handleDelete = (id) => {
+    setConfirmDelete(id)
+  }
+
+  const confirmAndDelete = () => {
+    onDeleteItem(confirmDelete)
+    setConfirmDelete(null)
+  }
 
   return (
     <div className="screen">
@@ -65,6 +75,13 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd }) {
                             </button>
                           ))}
                         </div>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#CCAAA8', flexShrink: 0 }}
+                          title="Delete item"
+                        >
+                          <i className="ti ti-trash" style={{ fontSize: 16 }} />
+                        </button>
                       </div>
                     ))
                   }
@@ -74,6 +91,19 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd }) {
           )
         })}
       </div>
+
+      {confirmDelete && (
+        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">Delete item?</div>
+            <div className="modal-sub">This will permanently remove it from your pantry.</div>
+            <div className="modal-actions" style={{ marginTop: 20 }}>
+              <button className="btn-ghost" style={{ flex: 1, padding: 12, fontSize: 14 }} onClick={() => setConfirmDelete(null)}>Cancel</button>
+              <button style={{ flex: 1, padding: 12, fontSize: 14, fontWeight: 800, background: '#C4608A', color: '#fff', border: 'none', borderRadius: 14, cursor: 'pointer' }} onClick={confirmAndDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
