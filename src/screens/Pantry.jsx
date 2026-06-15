@@ -126,7 +126,7 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
 
       <div style={{ padding: '0 16px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {[['full', '#7DC4A0'], ['low', '#E6A817'], ['out', '#C4608A']].map(([level, colour]) => (
+          {[['full', '#7DC4A0'], ['low', '#E6A817'], ['out', '#E87E7E']].map(([level, colour]) => (
             <button key={level} onClick={() => toggleStock(level)} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12, background: stockFilters.has(level) ? colour : 'rgba(255,255,255,0.7)', color: stockFilters.has(level) ? '#fff' : '#6A9A84', transition: 'all 0.15s' }}>
               {level.charAt(0).toUpperCase() + level.slice(1)}
             </button>
