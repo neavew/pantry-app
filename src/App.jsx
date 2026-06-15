@@ -121,12 +121,14 @@ export default function App() {
   // Add new item
   const handleAddItem = useCallback(async (newItem) => {
     try {
-      const saved = await insertItem(newItem)
+      const catItems = pantry.filter(i => i.cat === newItem.cat && !i.staple)
+      const maxOrder = catItems.reduce((max, i) => Math.max(max, i.sort_order ?? 0), -1)
+      const saved = await insertItem({ ...newItem, sort_order: maxOrder + 1 })
       setPantry(prev => [...prev, saved])
     } catch (err) {
       console.error('Failed to add item:', err)
     }
-  }, [])
+  }, [pantry])
 
   // Apply scan results
   const handleApplyScan = useCallback(async (suggestions) => {

@@ -121,7 +121,10 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
         {CATEGORIES.map(cat => {
           const items = pantry
             .filter(i => i.cat === cat)
-            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+            .sort((a, b) => {
+              if (a.staple !== b.staple) return a.staple ? -1 : 1
+              return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)
+            })
           const meta = CAT_META[cat]
           const isOpen = openCats[cat]
           return (
