@@ -19,6 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [activeStore, setActiveStore] = useState('costco')
   const [showAdd, setShowAdd] = useState(false)
+  const [addCategory, setAddCategory] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
   const deletedIds = React.useRef(new Set())
 
@@ -161,7 +162,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={() => setShowAdd(true)} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">
@@ -177,7 +178,7 @@ export default function App() {
         ))}
       </nav>
 
-      {showAdd && <AddItemModal onSave={handleAddItem} onClose={() => setShowAdd(false)} />}
+      {showAdd && <AddItemModal initialCat={addCategory} onSave={handleAddItem} onClose={() => { setShowAdd(false); setAddCategory(null) }} />}
       {editingItem && <AddItemModal item={editingItem} onSave={handleEditItem} onClose={() => setEditingItem(null)} />}
     </div>
   )

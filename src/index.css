@@ -1,5 +1,12 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+.cat-icon-btn .cat-icon-hover { opacity: 0; transition: opacity 0.15s; }
+.cat-icon-btn .cat-icon-default { opacity: 1; transition: opacity 0.15s; }
+.cat-icon-btn:hover .cat-icon-hover,
+.cat-icon-btn:active .cat-icon-hover { opacity: 1; }
+.cat-icon-btn:hover .cat-icon-default,
+.cat-icon-btn:active .cat-icon-default { opacity: 0; }
+
 body {
   font-family: 'Nunito', sans-serif;
   background: #D6EFE3;

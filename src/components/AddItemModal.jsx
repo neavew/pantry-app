@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
-export default function AddItemModal({ item, onSave, onClose }) {
+export default function AddItemModal({ item, initialCat, onSave, onClose }) {
   const editing = !!item
   const [name, setName] = useState(item?.name ?? '')
-  const [cat, setCat] = useState(item?.cat ?? 'fridge')
+  const [cat, setCat] = useState(item?.cat ?? initialCat ?? 'fridge')
   const [store, setStore] = useState(item?.store ?? 'costco')
   const [staple, setStaple] = useState(item?.staple ?? true)
 

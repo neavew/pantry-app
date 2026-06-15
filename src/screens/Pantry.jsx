@@ -127,8 +127,14 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
           return (
             <div key={cat} style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(6px)', borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(180,220,200,0.3)' }}>
               <div onClick={() => toggleCat(cat)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <div style={{ width: 32, height: 32, borderRadius: 10, background: meta.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <i className={`ti ${meta.icon}`} aria-hidden="true" style={{ fontSize: 17, color: '#fff' }} />
+                <div
+                  onClick={e => { e.stopPropagation(); onOpenAdd(cat) }}
+                  title={`Add to ${meta.label}`}
+                  style={{ width: 32, height: 32, borderRadius: 10, background: meta.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', position: 'relative' }}
+                  className="cat-icon-btn"
+                >
+                  <i className={`ti ${meta.icon} cat-icon-default`} aria-hidden="true" style={{ fontSize: 17, color: '#fff', position: 'absolute' }} />
+                  <i className="ti ti-plus cat-icon-hover" aria-hidden="true" style={{ fontSize: 17, color: '#fff', position: 'absolute' }} />
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: '#1A3D2E', flex: 1 }}>{meta.label}</div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#8ABAA8' }}>{items.length} items</div>
