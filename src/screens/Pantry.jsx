@@ -73,6 +73,7 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
   const [openCats, setOpenCats] = useState({})
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [filter, setFilter] = useState(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -117,16 +118,35 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
         </div>
       </div>
 
+      <div style={{ padding: '0 16px 10px', display: 'flex', gap: 8 }}>
+        {[['full', '#7DC4A0'], ['low', '#E6A817'], ['out', '#C4608A']].map(([level, colour]) => (
+          <button
+            key={level}
+            onClick={() => setFilter(f => f === level ? null : level)}
+            style={{
+              padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+              fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12,
+              background: filter === level ? colour : 'rgba(255,255,255,0.7)',
+              color: filter === level ? '#fff' : '#6A9A84',
+              transition: 'all 0.15s',
+            }}
+          >
+            {level.charAt(0).toUpperCase() + level.slice(1)}
+          </button>
+        ))}
+      </div>
+
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {CATEGORIES.map(cat => {
           const items = pantry
-            .filter(i => i.cat === cat)
+            .filter(i => i.cat === cat && (!filter || i.stock === filter))
             .sort((a, b) => {
               if (a.staple !== b.staple) return a.staple ? -1 : 1
               return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)
             })
           const meta = CAT_META[cat]
-          const isOpen = openCats[cat]
+          const isOpen = filter ? items.length > 0 : openCats[cat]
+          if (filter && items.length === 0) return null
           return (
             <div key={cat} style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(6px)', borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(180,220,200,0.3)' }}>
               <div onClick={() => toggleCat(cat)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
