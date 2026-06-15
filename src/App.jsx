@@ -131,12 +131,13 @@ export default function App() {
   // Apply scan results
   const handleApplyScan = useCallback(async (suggestions) => {
     for (const s of suggestions) {
-      const existing = pantry.find(i => i.name.toLowerCase() === s.name.toLowerCase())
+      const normalize = str => str.toLowerCase().replace(/s$/, '').trim()
+      const existing = pantry.find(i => normalize(i.name) === normalize(s.name))
       if (existing) {
         await handleSetStock(existing.id, s.stock)
       } else {
         await handleAddItem({
-          name: s.name, cat: 'fridge', store: 'grocery',
+          name: s.name, cat: s.cat || 'fridge', store: 'grocery',
           staple: false, stock: s.stock,
           added_to_list: s.stock !== 'full',
           last_bought: new Date().toISOString(),

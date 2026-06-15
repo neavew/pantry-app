@@ -32,7 +32,7 @@ export async function scanPhoto(file) {
       },
       {
         type: 'text',
-        text: `You are a pantry tracking assistant. Look at this photo and identify all visible food items. For each item, estimate stock level as: "full" (plenty visible), "low" (only a little left), or "out" (empty or not visible). Return ONLY a JSON array with no preamble or markdown, like: [{"name":"Milk","stock":"low"},{"name":"Eggs","stock":"full"}]`,
+        text: `You are a pantry tracking assistant. Look at this photo and identify all visible food items. For each item, estimate stock level as: "full" (plenty visible), "low" (only a little left), or "out" (empty or not visible). Also assign a category — "fridge" (fresh food, dairy, drinks, leftovers), "freezer" (frozen food), "cupboard" (dry goods, tins, bread, pasta, condiments, snacks, cereals), "toiletries" (soap, shampoo, toothpaste, skincare), "household" (cleaning products, batteries, paper towels, bin bags). Return ONLY a JSON array with no preamble or markdown, like: [{"name":"Milk","stock":"low","cat":"fridge"},{"name":"Tinned tuna","stock":"out","cat":"cupboard"}]`,
       },
     ],
   }])
@@ -41,7 +41,7 @@ export async function scanPhoto(file) {
 export async function scanVoice(text) {
   return callClaude([{
     role: 'user',
-    content: `You are a pantry assistant. The user narrated what they see in their fridge or pantry. Extract each food item mentioned and classify the stock level as "full" (plenty), "low" (running low, a few left), or "out" (none/empty/finishing). Return ONLY a JSON array with no preamble or markdown: [{"name":"Apples","stock":"low"}]. User said: "${text}"`,
+    content: `You are a household inventory assistant. The user narrated what they can see or what they need. Extract each item mentioned and classify the stock level as "full" (plenty), "low" (running low, a few left), or "out" (none/empty/finished). Also assign a category — "fridge" (fresh food, dairy, drinks, leftovers), "freezer" (frozen food), "cupboard" (dry goods, tins, bread, pasta, condiments, snacks, cereals), "toiletries" (soap, shampoo, toothpaste, skincare), "household" (cleaning products, batteries, paper towels, bin bags). Return ONLY a JSON array with no preamble or markdown: [{"name":"Apples","stock":"low","cat":"fridge"},{"name":"Bread","stock":"out","cat":"cupboard"}]. User said: "${text}"`,
   }])
 }
 
