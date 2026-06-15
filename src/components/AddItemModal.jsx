@@ -5,7 +5,7 @@ export default function AddItemModal({ item, initialCat, onSave, onClose }) {
   const [name, setName] = useState(item?.name ?? '')
   const [cat, setCat] = useState(item?.cat ?? initialCat ?? 'fridge')
   const [store, setStore] = useState(item?.store ?? 'costco')
-  const [staple, setStaple] = useState(item?.staple ?? true)
+  const [staple, setStaple] = useState(item?.staple ?? false)
 
   const handleSave = () => {
     if (!name.trim()) return
@@ -57,11 +57,11 @@ export default function AddItemModal({ item, initialCat, onSave, onClose }) {
         <div className="modal-field">
           <label className="modal-label">Is this a staple?</label>
           <div className="modal-toggle-row">
-            <button className={`modal-toggle${staple ? ' active-pink' : ''}`} onClick={() => setStaple(true)}>
-              Yes — auto-add when low
-            </button>
             <button className={`modal-toggle${!staple ? ' active-pink' : ''}`} onClick={() => setStaple(false)}>
               No — manual only
+            </button>
+            <button className={`modal-toggle${staple ? ' active-pink' : ''}`} onClick={() => setStaple(true)}>
+              Yes — auto-add when low
             </button>
           </div>
         </div>
