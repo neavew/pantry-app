@@ -73,7 +73,13 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
   const [openCats, setOpenCats] = useState({})
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
-  const [filter, setFilter] = useState(null)
+  const [stockFilters, setStockFilters] = useState(new Set())
+  const [storeFilters, setStoreFilters] = useState(new Set())
+
+  const toggleStock = level => setStockFilters(prev => { const n = new Set(prev); n.has(level) ? n.delete(level) : n.add(level); return n })
+  const toggleStore = store => setStoreFilters(prev => { const n = new Set(prev); n.has(store) ? n.delete(store) : n.add(store); return n })
+  const hasFilter = stockFilters.size > 0 || storeFilters.size > 0
+  const clearFilters = () => { setStockFilters(new Set()); setStoreFilters(new Set()) }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -118,35 +124,38 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
         </div>
       </div>
 
-      <div style={{ padding: '0 16px 10px', display: 'flex', gap: 8 }}>
-        {[['full', '#7DC4A0'], ['low', '#E6A817'], ['out', '#C4608A']].map(([level, colour]) => (
-          <button
-            key={level}
-            onClick={() => setFilter(f => f === level ? null : level)}
-            style={{
-              padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-              fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12,
-              background: filter === level ? colour : 'rgba(255,255,255,0.7)',
-              color: filter === level ? '#fff' : '#6A9A84',
-              transition: 'all 0.15s',
-            }}
-          >
-            {level.charAt(0).toUpperCase() + level.slice(1)}
-          </button>
-        ))}
+      <div style={{ padding: '0 16px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {[['full', '#7DC4A0'], ['low', '#E6A817'], ['out', '#C4608A']].map(([level, colour]) => (
+            <button key={level} onClick={() => toggleStock(level)} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12, background: stockFilters.has(level) ? colour : 'rgba(255,255,255,0.7)', color: stockFilters.has(level) ? '#fff' : '#6A9A84', transition: 'all 0.15s' }}>
+              {level.charAt(0).toUpperCase() + level.slice(1)}
+            </button>
+          ))}
+          <div style={{ width: 1, background: 'rgba(0,0,0,0.1)', margin: '2px 2px' }} />
+          {[['costco', '#4A86B8', 'Costco'], ['grocery', '#C4608A', 'Grocery']].map(([store, colour, label]) => (
+            <button key={store} onClick={() => toggleStore(store)} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12, background: storeFilters.has(store) ? colour : 'rgba(255,255,255,0.7)', color: storeFilters.has(store) ? '#fff' : '#6A9A84', transition: 'all 0.15s' }}>
+              {label}
+            </button>
+          ))}
+          {hasFilter && (
+            <button onClick={clearFilters} style={{ padding: '6px 12px', borderRadius: 20, border: '1.5px solid rgba(0,0,0,0.1)', cursor: 'pointer', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 12, background: 'transparent', color: '#8ABAA8', transition: 'all 0.15s' }}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {CATEGORIES.map(cat => {
           const items = pantry
-            .filter(i => i.cat === cat && (!filter || i.stock === filter))
+            .filter(i => i.cat === cat && (stockFilters.size === 0 || stockFilters.has(i.stock)) && (storeFilters.size === 0 || storeFilters.has(i.store)))
             .sort((a, b) => {
               if (a.staple !== b.staple) return a.staple ? -1 : 1
               return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)
             })
           const meta = CAT_META[cat]
-          const isOpen = filter ? items.length > 0 : openCats[cat]
-          if (filter && items.length === 0) return null
+          const isOpen = hasFilter ? items.length > 0 : openCats[cat]
+          if (hasFilter && items.length === 0) return null
           return (
             <div key={cat} style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(6px)', borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(180,220,200,0.3)' }}>
               <div onClick={() => toggleCat(cat)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
