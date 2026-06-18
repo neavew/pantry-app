@@ -72,42 +72,54 @@ export async function suggestSubgroup(name, cat, subgroups) {
 
 export async function bulkAssignSubgroups(items) {
   if (items.length === 0) return []
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `Assign each item to the correct subgroup. Return ONLY a JSON array with no preamble or markdown.
+
+  // Process in batches of 30 to avoid token limits
+  const BATCH = 30
+  const results = []
+  for (let i = 0; i < items.length; i += BATCH) {
+    const batch = items.slice(i, i + BATCH)
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: `Assign each item to the correct subgroup. Return ONLY a JSON array with no preamble or markdown.
 
 Subgroup options per category:
 - fridge: Dairy, Meat, Fruit, Veg, Other
 - freezer: Meat, Fish, Other
 - cupboard: Tins, Grains, Snacks, Condiments, Other
 - household: Cleaning, Food Storage, Other
-- toiletries: (no subgroups, leave subgroup null)
+- toiletries: null (no subgroups)
 
-Items: ${JSON.stringify(items.map(i => ({ id: i.id, name: i.name, cat: i.cat })))}
+Items: ${JSON.stringify(batch.map(i => ({ id: i.id, name: i.name, cat: i.cat })))}
 
 Return: [{"id":"...","subgroup":"..."}]`,
-      }],
-    }),
-  })
-  if (!res.ok) return []
-  const data = await res.json()
-  const text = data.content.find(c => c.type === 'text')?.text || '[]'
-  try {
-    return JSON.parse(text.replace(/```json|```/g, '').trim())
-  } catch {
-    return []
+        }],
+      }),
+    })
+    if (!res.ok) {
+      console.error('bulkAssignSubgroups API error', res.status, await res.text())
+      continue
+    }
+    const data = await res.json()
+    const text = data.content.find(c => c.type === 'text')?.text || '[]'
+    try {
+      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim())
+      results.push(...parsed)
+    } catch (e) {
+      console.error('bulkAssignSubgroups parse error', e, text)
+    }
   }
+  return results
 }
 
 function fileToBase64(file) {

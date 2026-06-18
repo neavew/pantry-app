@@ -82,19 +82,13 @@ export default function App() {
     setOrganising(true)
     try {
       const assignments = await bulkAssignSubgroups(pantry)
-      const updated = []
       for (const { id, subgroup } of assignments) {
         const item = pantry.find(i => i.id === id)
         if (!item || item.subgroup === subgroup) continue
         await updateItem(id, { subgroup })
-        updated.push({ id, subgroup })
       }
-      if (updated.length > 0) {
-        setPantry(prev => prev.map(i => {
-          const u = updated.find(u => u.id === i.id)
-          return u ? { ...i, subgroup: u.subgroup } : i
-        }))
-      }
+    } catch (err) {
+      console.error('Organise failed', err)
     } finally {
       setOrganising(false)
     }
