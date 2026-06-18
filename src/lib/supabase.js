@@ -45,6 +45,42 @@ export async function deleteItem(id) {
   if (error) throw error
 }
 
+// ── Meal prep ─────────────────────────────────────────────────
+
+export async function fetchMealPrep() {
+  const { data, error } = await supabase
+    .from('meal_prep')
+    .select('*')
+    .order('created_at')
+  if (error) throw error
+  return data
+}
+
+export async function insertMealPrepItem(item) {
+  const { data, error } = await supabase
+    .from('meal_prep')
+    .insert(item)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function upsertMealPrepItem(item) {
+  const { data, error } = await supabase
+    .from('meal_prep')
+    .upsert(item, { onConflict: 'id' })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteMealPrepItem(id) {
+  const { error } = await supabase.from('meal_prep').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ── Realtime subscription ─────────────────────────────────────
 
 export function subscribeToPantry(onRefresh, onDelete) {

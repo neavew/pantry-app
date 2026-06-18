@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { fetchPantry, upsertItem, insertItem, deleteItem, subscribeToPantry } from './lib/supabase.js'
+import { fetchPantry, upsertItem, insertItem, deleteItem, subscribeToPantry, fetchMealPrep, insertMealPrepItem, upsertMealPrepItem, deleteMealPrepItem } from './lib/supabase.js'
 import { bulkAssignSubgroups } from './lib/anthropic.js'
 import Dashboard from './screens/Dashboard.jsx'
 import ShoppingList from './screens/ShoppingList.jsx'
 import Pantry from './screens/Pantry.jsx'
+import MealPrep from './screens/MealPrep.jsx'
 import Scan from './screens/Scan.jsx'
 import AddItemModal from './components/AddItemModal.jsx'
 
 const NAV = [
-  { id: 'home',   icon: 'ti-home',          label: 'Dashboard' },
-  { id: 'list',   icon: 'ti-shopping-cart',  label: 'Lists' },
-  { id: 'pantry', icon: 'ti-archive',        label: 'Inventory' },
-  { id: 'scan',   icon: 'ti-camera',         label: 'Scan' },
+  { id: 'home',     icon: 'ti-home',          label: 'Dashboard' },
+  { id: 'list',     icon: 'ti-shopping-cart',  label: 'Lists' },
+  { id: 'pantry',   icon: 'ti-archive',        label: 'Inventory' },
+  { id: 'mealprep', icon: 'ti-tools-kitchen-2', label: 'Meal Prep' },
+  { id: 'scan',     icon: 'ti-camera',         label: 'Scan' },
 ]
 
 export default function App() {
@@ -23,7 +25,13 @@ export default function App() {
   const [addCategory, setAddCategory] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
   const [organising, setOrganising] = useState(false)
+  const [mealPrep, setMealPrep] = useState([])
   const deletedIds = React.useRef(new Set())
+
+  // Load meal prep from Supabase
+  useEffect(() => {
+    fetchMealPrep().then(setMealPrep).catch(console.error)
+  }, [])
 
   // Load pantry from Supabase
   useEffect(() => {
@@ -172,6 +180,21 @@ export default function App() {
     }
   }, [pantry, handleSetStock, handleAddItem])
 
+  const handleAddMealPrep = useCallback(async (item) => {
+    const saved = await insertMealPrepItem(item)
+    setMealPrep(prev => [...prev, saved])
+  }, [])
+
+  const handleUpdateMealPrep = useCallback(async (item) => {
+    setMealPrep(prev => prev.map(i => i.id === item.id ? item : i))
+    await upsertMealPrepItem(item)
+  }, [])
+
+  const handleDeleteMealPrep = useCallback(async (id) => {
+    setMealPrep(prev => prev.filter(i => i.id !== id))
+    await deleteMealPrepItem(id)
+  }, [])
+
   const goToList = (store) => {
     setActiveStore(store)
     setScreen('list')
@@ -190,6 +213,7 @@ export default function App() {
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onRemoveFromList={handleRemoveFromList} onAddToList={handleAddToList} />}
       {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} onOrganise={handleOrganise} organising={organising} onAddToList={handleAddToList} />}
+      {screen === 'mealprep' && <MealPrep items={mealPrep} onAdd={handleAddMealPrep} onUpdate={handleUpdateMealPrep} onDelete={handleDeleteMealPrep} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">
