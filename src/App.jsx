@@ -75,6 +75,11 @@ export default function App() {
     }
   }, [pantry])
 
+  // Remove item from shopping list without changing stock
+  const handleRemoveFromList = useCallback(async (id) => {
+    await updateItem(id, { added_to_list: false, checked_off: false })
+  }, [updateItem])
+
   // Manually add item to shopping list
   const handleAddToList = useCallback(async (id) => {
     await updateItem(id, { added_to_list: true })
@@ -164,7 +169,7 @@ export default function App() {
   return (
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
-      {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onAddToList={handleAddToList} />}
+      {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onRemoveFromList={handleRemoveFromList} onAddToList={handleAddToList} />}
       {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 

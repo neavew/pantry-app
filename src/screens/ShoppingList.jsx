@@ -8,7 +8,7 @@ const CAT_META = {
 
 const STOCK_ORDER = ['out', 'low', 'full']
 
-export default function ShoppingList({ pantry, activeStore, onSetStore, onCheckOff, onAddToList }) {
+export default function ShoppingList({ pantry, activeStore, onSetStore, onCheckOff, onRemoveFromList, onAddToList }) {
   const items = pantry.filter(i => i.store === activeStore && i.added_to_list)
   const byCategory = {}
   items.forEach(i => {
@@ -87,6 +87,16 @@ export default function ShoppingList({ pantry, activeStore, onSetStore, onCheckO
                         {item.stock === 'out' ? 'Out of stock' : 'Running low'}
                       </span>
                     </div>
+                    <button
+                      onClick={() => onRemoveFromList(item.id)}
+                      title="Remove from list"
+                      style={{
+                        width: 26, height: 26, borderRadius: 8, border: 'none',
+                        background: 'rgba(180,180,180,0.2)', color: '#999',
+                        fontSize: 16, lineHeight: 1, cursor: 'pointer', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >×</button>
                   </div>
                 ))}
             </div>
