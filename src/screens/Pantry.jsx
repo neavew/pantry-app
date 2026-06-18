@@ -75,11 +75,12 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [stockFilters, setStockFilters] = useState(new Set())
   const [storeFilters, setStoreFilters] = useState(new Set())
+  const [search, setSearch] = useState('')
 
   const toggleStock = level => setStockFilters(prev => { const n = new Set(prev); n.has(level) ? n.delete(level) : n.add(level); return n })
   const toggleStore = store => setStoreFilters(prev => { const n = new Set(prev); n.has(store) ? n.delete(store) : n.add(store); return n })
-  const hasFilter = stockFilters.size > 0 || storeFilters.size > 0
-  const clearFilters = () => { setStockFilters(new Set()); setStoreFilters(new Set()) }
+  const hasFilter = stockFilters.size > 0 || storeFilters.size > 0 || search.trim() !== ''
+  const clearFilters = () => { setStockFilters(new Set()); setStoreFilters(new Set()); setSearch('') }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -143,12 +144,31 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
             </button>
           )}
         </div>
+        <div style={{ position: 'relative' }}>
+          <i className="ti ti-search" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: '#8ABAA8', pointerEvents: 'none' }} />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search inventory…"
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '10px 12px 10px 34px', borderRadius: 14, border: '1.5px solid rgba(180,220,200,0.4)',
+              background: 'rgba(255,255,255,0.75)', fontFamily: 'Nunito, sans-serif',
+              fontSize: 13, fontWeight: 600, color: '#1A3D2E', outline: 'none',
+            }}
+          />
+          {search && (
+            <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8ABAA8', fontSize: 18, lineHeight: 1, padding: 2 }}>×</button>
+          )}
+        </div>
       </div>
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {CATEGORIES.map(cat => {
+          const q = search.trim().toLowerCase()
           const items = pantry
-            .filter(i => i.cat === cat && (stockFilters.size === 0 || stockFilters.has(i.stock)) && (storeFilters.size === 0 || storeFilters.has(i.store)))
+            .filter(i => i.cat === cat && (stockFilters.size === 0 || stockFilters.has(i.stock)) && (storeFilters.size === 0 || storeFilters.has(i.store)) && (q === '' || i.name.toLowerCase().includes(q)))
             .sort((a, b) => {
               if (a.staple !== b.staple) return a.staple ? -1 : 1
               return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)
