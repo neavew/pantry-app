@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { fetchPantry, upsertItem, insertItem, deleteItem, subscribeToPantry } from './lib/supabase.js'
+import { bulkAssignSubgroups } from './lib/anthropic.js'
 import Dashboard from './screens/Dashboard.jsx'
 import ShoppingList from './screens/ShoppingList.jsx'
 import Pantry from './screens/Pantry.jsx'
@@ -21,6 +22,7 @@ export default function App() {
   const [showAdd, setShowAdd] = useState(false)
   const [addCategory, setAddCategory] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
+  const [organising, setOrganising] = useState(false)
   const deletedIds = React.useRef(new Set())
 
   // Load pantry from Supabase
@@ -74,6 +76,29 @@ export default function App() {
       }, 900)
     }
   }, [pantry])
+
+  // Bulk AI subgroup assignment
+  const handleOrganise = useCallback(async () => {
+    setOrganising(true)
+    try {
+      const assignments = await bulkAssignSubgroups(pantry)
+      const updated = []
+      for (const { id, subgroup } of assignments) {
+        const item = pantry.find(i => i.id === id)
+        if (!item || item.subgroup === subgroup) continue
+        await updateItem(id, { subgroup })
+        updated.push({ id, subgroup })
+      }
+      if (updated.length > 0) {
+        setPantry(prev => prev.map(i => {
+          const u = updated.find(u => u.id === i.id)
+          return u ? { ...i, subgroup: u.subgroup } : i
+        }))
+      }
+    } finally {
+      setOrganising(false)
+    }
+  }, [pantry, updateItem])
 
   // Remove item from shopping list without changing stock
   const handleRemoveFromList = useCallback(async (id) => {
@@ -170,7 +195,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onRemoveFromList={handleRemoveFromList} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} onOrganise={handleOrganise} organising={organising} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 
       <nav className="bottom-nav">

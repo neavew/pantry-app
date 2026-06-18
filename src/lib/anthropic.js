@@ -45,6 +45,71 @@ export async function scanVoice(text) {
   }])
 }
 
+export async function suggestSubgroup(name, cat, subgroups) {
+  if (!subgroups || subgroups.length === 0) return null
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 20,
+      messages: [{
+        role: 'user',
+        content: `Which subgroup does "${name}" belong to in the ${cat} category? Options: ${subgroups.join(', ')}. Reply with ONLY the exact subgroup name, nothing else.`,
+      }],
+    }),
+  })
+  if (!res.ok) return 'Other'
+  const data = await res.json()
+  const reply = data.content.find(c => c.type === 'text')?.text?.trim() ?? 'Other'
+  return subgroups.includes(reply) ? reply : 'Other'
+}
+
+export async function bulkAssignSubgroups(items) {
+  if (items.length === 0) return []
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `Assign each item to the correct subgroup. Return ONLY a JSON array with no preamble or markdown.
+
+Subgroup options per category:
+- fridge: Dairy, Meat, Fruit, Veg, Other
+- freezer: Meat, Fish, Other
+- cupboard: Tins, Grains, Snacks, Condiments, Other
+- household: Cleaning, Food Storage, Other
+- toiletries: (no subgroups, leave subgroup null)
+
+Items: ${JSON.stringify(items.map(i => ({ id: i.id, name: i.name, cat: i.cat })))}
+
+Return: [{"id":"...","subgroup":"..."}]`,
+      }],
+    }),
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  const text = data.content.find(c => c.type === 'text')?.text || '[]'
+  try {
+    return JSON.parse(text.replace(/```json|```/g, '').trim())
+  } catch {
+    return []
+  }
+}
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

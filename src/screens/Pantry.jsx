@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { SUBGROUPS } from '../lib/subgroups.js'
 
 const CATEGORIES = ['fridge', 'freezer', 'cupboard', 'toiletries', 'household']
 const CAT_META = {
@@ -69,7 +70,7 @@ function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem }) {
   )
 }
 
-export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder }) {
+export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder, onOrganise, organising }) {
   const [openCats, setOpenCats] = useState({})
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -111,6 +112,19 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!editing && <button className="btn-primary" onClick={onOpenAdd}>+ Add</button>}
+          {editing && (
+            <button
+              onClick={onOrganise}
+              disabled={organising}
+              style={{
+                padding: '8px 14px', borderRadius: 12, border: 'none', cursor: organising ? 'default' : 'pointer',
+                fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 13,
+                background: 'rgba(255,255,255,0.7)', color: '#7DC4A0', opacity: organising ? 0.6 : 1,
+              }}
+            >
+              {organising ? 'Organising…' : 'AI Organise'}
+            </button>
+          )}
           <button
             onClick={() => setEditing(e => !e)}
             style={{
@@ -196,22 +210,36 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
                 <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {items.length === 0
                     ? <div className="empty-state" style={{ padding: '10px 0' }}>No items in this category yet</div>
-                    : (
-                      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(cat, items)}>
-                        <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                          {items.map(item => (
-                            <SortableItem
-                              key={item.id}
-                              item={item}
-                              editing={editing}
-                              onSetStock={onSetStock}
-                              onEditItem={onEditItem}
-                              onDeleteItem={handleDelete}
-                            />
-                          ))}
-                        </SortableContext>
-                      </DndContext>
-                    )
+                    : (() => {
+                        const catSubgroups = SUBGROUPS[cat] ?? []
+                        const renderItems = (list) => (
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(cat, list)}>
+                            <SortableContext items={list.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                              {list.map(item => (
+                                <SortableItem key={item.id} item={item} editing={editing} onSetStock={onSetStock} onEditItem={onEditItem} onDeleteItem={handleDelete} />
+                              ))}
+                            </SortableContext>
+                          </DndContext>
+                        )
+                        if (catSubgroups.length === 0) return renderItems(items)
+                        const grouped = {}
+                        catSubgroups.forEach(sg => { grouped[sg] = [] })
+                        grouped['Unassigned'] = []
+                        items.forEach(i => {
+                          const sg = i.subgroup && catSubgroups.includes(i.subgroup) ? i.subgroup : (i.subgroup ? 'Other' : 'Unassigned')
+                          ;(grouped[sg] ?? grouped['Unassigned']).push(i)
+                        })
+                        return [...catSubgroups, 'Unassigned'].map(sg => {
+                          const sgItems = grouped[sg] ?? []
+                          if (sgItems.length === 0) return null
+                          return (
+                            <div key={sg}>
+                              <div style={{ fontSize: 10, fontWeight: 800, color: '#8ABAA8', textTransform: 'uppercase', letterSpacing: 1, padding: '8px 4px 4px' }}>{sg}</div>
+                              {renderItems(sgItems)}
+                            </div>
+                          )
+                        })
+                      })()
                   }
                 </div>
               )}
