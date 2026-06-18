@@ -13,7 +13,7 @@ const CAT_META = {
   household:   { label: 'Household',   icon: 'ti-home',      bg: '#B07DC4' },
 }
 
-function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem }) {
+function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem, onAddToList }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
   return (
@@ -44,17 +44,30 @@ function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem }) {
         </div>
       </div>
       {!editing && (
-        <div className="stock-toggle">
-          {['full', 'low', 'out'].map(level => (
-            <button
-              key={level}
-              className={`stock-btn${item.stock === level ? ` active-${level}` : ''}`}
-              onClick={() => onSetStock(item.id, level)}
-            >
-              {level.charAt(0).toUpperCase() + level.slice(1)}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="stock-toggle">
+            {['full', 'low', 'out'].map(level => (
+              <button
+                key={level}
+                className={`stock-btn${item.stock === level ? ` active-${level}` : ''}`}
+                onClick={() => onSetStock(item.id, level)}
+              >
+                {level.charAt(0).toUpperCase() + level.slice(1)}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => !item.added_to_list && onAddToList(item.id)}
+            title={item.added_to_list ? 'Already on list' : 'Add to shopping list'}
+            style={{
+              background: 'none', border: 'none', cursor: item.added_to_list ? 'default' : 'pointer',
+              padding: '4px 2px', flexShrink: 0,
+              color: item.added_to_list ? '#7DC4A0' : '#C8DEC8',
+            }}
+          >
+            <i className={`ti ${item.added_to_list ? 'ti-shopping-cart-check' : 'ti-shopping-cart-plus'}`} style={{ fontSize: 18 }} />
+          </button>
+        </>
       )}
       {editing && (
         <>
@@ -70,7 +83,7 @@ function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem }) {
   )
 }
 
-export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder, onOrganise, organising }) {
+export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder, onOrganise, organising, onAddToList }) {
   const [openCats, setOpenCats] = useState({})
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -216,7 +229,7 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
                           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(cat, list)}>
                             <SortableContext items={list.map(i => i.id)} strategy={verticalListSortingStrategy}>
                               {list.map(item => (
-                                <SortableItem key={item.id} item={item} editing={editing} onSetStock={onSetStock} onEditItem={onEditItem} onDeleteItem={handleDelete} />
+                                <SortableItem key={item.id} item={item} editing={editing} onSetStock={onSetStock} onEditItem={onEditItem} onDeleteItem={handleDelete} onAddToList={onAddToList} />
                               ))}
                             </SortableContext>
                           </DndContext>
