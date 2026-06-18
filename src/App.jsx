@@ -212,7 +212,7 @@ export default function App() {
     <div className="app">
       {screen === 'home'   && <Dashboard pantry={pantry} onGoToList={goToList} />}
       {screen === 'list'   && <ShoppingList pantry={pantry} activeStore={activeStore} onSetStore={setActiveStore} onCheckOff={handleCheckOff} onRemoveFromList={handleRemoveFromList} onAddToList={handleAddToList} />}
-      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} onOrganise={handleOrganise} organising={organising} onAddToList={handleAddToList} />}
+      {screen === 'pantry' && <Pantry pantry={pantry} onSetStock={handleSetStock} onOpenAdd={cat => { setAddCategory(cat ?? null); setShowAdd(true) }} onDeleteItem={handleDeleteItem} onEditItem={setEditingItem} onReorder={handleReorder} onOrganise={handleOrganise} organising={organising} onAddToList={handleAddToList} onRemoveFromList={handleRemoveFromList} />}
       {screen === 'mealprep' && <MealPrep items={mealPrep} onAdd={handleAddMealPrep} onUpdate={handleUpdateMealPrep} onDelete={handleDeleteMealPrep} />}
       {screen === 'scan'   && <Scan pantry={pantry} onApplyUpdates={handleApplyScan} />}
 

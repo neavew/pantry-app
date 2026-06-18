@@ -13,7 +13,7 @@ const CAT_META = {
   household:   { label: 'Household',   icon: 'ti-home',      bg: '#B07DC4' },
 }
 
-function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem, onAddToList }) {
+function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem, onAddToList, onRemoveFromList }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
   return (
@@ -57,10 +57,10 @@ function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem, onA
             ))}
           </div>
           <button
-            onClick={() => !item.added_to_list && onAddToList(item.id)}
-            title={item.added_to_list ? 'Already on list' : 'Add to shopping list'}
+            onClick={() => item.added_to_list ? onRemoveFromList(item.id) : onAddToList(item.id)}
+            title={item.added_to_list ? 'Remove from shopping list' : 'Add to shopping list'}
             style={{
-              background: 'none', border: 'none', cursor: item.added_to_list ? 'default' : 'pointer',
+              background: 'none', border: 'none', cursor: 'pointer',
               padding: '4px 2px', flexShrink: 0,
               color: item.added_to_list ? '#7DC4A0' : '#C8DEC8',
             }}
@@ -83,7 +83,7 @@ function SortableItem({ item, editing, onSetStock, onEditItem, onDeleteItem, onA
   )
 }
 
-export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder, onOrganise, organising, onAddToList }) {
+export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, onEditItem, onReorder, onOrganise, organising, onAddToList, onRemoveFromList }) {
   const [openCats, setOpenCats] = useState({})
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -229,7 +229,7 @@ export default function Pantry({ pantry, onSetStock, onOpenAdd, onDeleteItem, on
                           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(cat, list)}>
                             <SortableContext items={list.map(i => i.id)} strategy={verticalListSortingStrategy}>
                               {list.map(item => (
-                                <SortableItem key={item.id} item={item} editing={editing} onSetStock={onSetStock} onEditItem={onEditItem} onDeleteItem={handleDelete} onAddToList={onAddToList} />
+                                <SortableItem key={item.id} item={item} editing={editing} onSetStock={onSetStock} onEditItem={onEditItem} onDeleteItem={handleDelete} onAddToList={onAddToList} onRemoveFromList={onRemoveFromList} />
                               ))}
                             </SortableContext>
                           </DndContext>
